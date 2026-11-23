@@ -1,0 +1,40 @@
+
+jest.mock('../prisma/db', () => ({
+  db: {
+    orm: {
+      public: {
+        Participants: {
+          all: jest.fn(),
+        },
+      },
+    },
+  },
+}));
+
+import { db } from '../prisma/db.js';
+import { getAllParticipants } from './participantService.js';
+
+describe('getAllParticipants', () => {
+
+  it('returns participants from the database', async () => {
+
+    // Arrange
+    (db.orm.public.Participants.all as jest.Mock)
+      .mockResolvedValue([
+        {
+          id: 1,
+          name: 'Jordan Smith',
+          stream: 'Engineering',
+          isActive: true,
+        },
+      ]);
+
+    // Act
+    const result = await getAllParticipants();
+
+    // Assert
+    expect(result).toHaveLength(1);
+    expect(result[0].name).toBe('Jordan Smith');
+  });
+
+});
